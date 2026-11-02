@@ -5,15 +5,15 @@
     {title:'Read the local configuration',caption:'EncryptData decrypts the local .dat file. ServerInfo supplies the domain and server endpoint before registration.',active:['config','shell'],state:{config:'Encrypted .dat',shell:'Endpoint configured'},message:{edge:'config-shell',label:'ServerInfo'}},
     {title:'Use the supplied helper libraries',caption:'EncryptData handles serialization and crypto. EOS uses QuestionLib and NAudio; PEA uses GradeLib and Ionic.Zip. These are local helpers, not the remote exam engine.',active:['libs','shell'],state:{libs:'Local helpers',shell:'Supplied EXE'},message:{edge:'libs-shell',label:'Local helpers'}},
     {title:'Register through the remote contract',caption:'The login shell calls ConductExam for EOS or ConductTest for PEA through a TCP .NET Remoting proxy. IRemote.dll declares the interface; its server implementation is outside the supplied files.',active:['shell','server'],state:{shell:'Registration sent',server:'IRemoteServer'},message:{edge:'shell-server',label:'ConductExam / Test'}},
-    {title:'Receive a session and GUI bytes',caption:'A successful registration returns EOSData or PEAData. The GUI field contains a compressed executable .NET assembly, not just an exam document.',active:['server','shell'],state:{server:'Status + payload',shell:'Session received'},message:{edge:'server-shell',label:'GUI bytes'}},
-    {title:'Load the downloaded exam form',caption:'The shell GZip-decompresses GUI, calls Assembly.Load and passes the session through SetExamData. The actual exam-form implementation was not included in the supplied packs.',active:['shell','runtime'],state:{shell:'Session handed over',runtime:'Code from server'},message:{edge:'shell-runtime',label:'Assembly.Load'}},
-    {title:'Stop at the submission boundary',caption:'The contracts declare SubmitPaper for EOS and SubmitSolution for PEA, returning SubmitStatus. The downloaded submit caller and the server acceptance logic are outside the supplied code.',active:['runtime','server'],state:{runtime:'Caller not supplied',server:'Submit contract only'},message:{edge:'runtime-server',label:'Contract only'}}
+    {title:'Receive executable client bytes',caption:'A successful registration returns EOSData or PEAData. GUI contains a compressed .NET assembly that can implement the interface and application logic, including potential monitoring.',active:['server','shell'],state:{server:'Status + payload',shell:'Session received'},message:{edge:'server-shell',label:'GUI bytes'}},
+    {title:'Load the downloaded client',caption:'The shell GZIP-decompresses GUI, loads the assembly, instantiates its exam form and initializes it with session data. The downloaded implementation is outside the supplied files.',active:['shell','runtime'],state:{shell:'Session handed over',runtime:'Code from server'},message:{edge:'shell-runtime',label:'Assembly.Load'}},
+    {title:'Stop at the runtime boundary',caption:'EOS declares SubmitPaper; PEA declares SubmitSolution and Log. Their downloaded callers and server storage/analysis are outside the supplied code. Activity-tracking behavior is unverified.',active:['runtime','server'],state:{runtime:'Caller not supplied',server:'Contract declarations'},message:{edge:'runtime-server',label:'Contract only'}}
   ];
   const labels = {
-    overview:['Configuration','Local helpers','Register','Receive GUI','Load form','Submit contract'],
-    eos:['Start','Configure','Connect','Register','Receive','Load GUI','Check-in','Handoff'],
-    'pea-csd':['Start','Configure','Validate','Register','Receive','Load GUI','Attach data','Handoff'],
-    'pea-prn':['Start','Configure','Validate','Register','Receive','Load GUI','Attach data','Handoff']
+    overview:['Configuration','Local helpers','Register','Receive code','Load client','Contracts'],
+    eos:['Start','Configure','Connect','Register','Receive','Load client','Check-in','Handoff'],
+    'pea-csd':['Start','Configure','Validate','Register','Receive','Load client','Attach data','Handoff'],
+    'pea-prn':['Start','Configure','Validate','Register','Receive','Load client','Attach data','Handoff']
   };
   const baseState = {config:'Encrypted .dat',libs:'Supplied locally',shell:'Supplied EXE',server:'Code not supplied',runtime:'Code not supplied'};
   const cases = [{id:'overview',name:'Shared architecture',steps:overview}, ...D.cases];
