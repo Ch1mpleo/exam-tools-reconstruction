@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <AssemblyName>QuestionLib</AssemblyName>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="NHibernate">
+      <HintPath>$(ExamInputsRoot)/EOS/NHibernate.dll</HintPath>
+    </Reference>
+    <EmbeddedResource Include="QuestionLib.Entity.Chapter.hbm.xml" LogicalName="QuestionLib.Entity.Chapter.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.Course.hbm.xml" LogicalName="QuestionLib.Entity.Course.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.MachQuestion.hbm.xml" LogicalName="QuestionLib.Entity.MachQuestion.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.Passage.hbm.xml" LogicalName="QuestionLib.Entity.Passage.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.Question.hbm.xml" LogicalName="QuestionLib.Entity.Question.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.QuestionAnswer.hbm.xml" LogicalName="QuestionLib.Entity.QuestionAnswer.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.Test.hbm.xml" LogicalName="QuestionLib.Entity.Test.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.EssayQuestion.hbm.xml" LogicalName="QuestionLib.Entity.EssayQuestion.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.Audio.hbm.xml" LogicalName="QuestionLib.Entity.Audio.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.LO.hbm.xml" LogicalName="QuestionLib.Entity.LO.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.QuestionLO.hbm.xml" LogicalName="QuestionLib.Entity.QuestionLO.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.TestTemplate.hbm.xml" LogicalName="QuestionLib.Entity.TestTemplate.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.TestTemplateDetails.hbm.xml" LogicalName="QuestionLib.Entity.TestTemplateDetails.hbm.xml" />
+    <EmbeddedResource Include="QuestionLib.Entity.EOSLog.hbm.xml" LogicalName="QuestionLib.Entity.EOSLog.hbm.xml" />
+  </ItemGroup>
+</Project>
