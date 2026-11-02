@@ -1,0 +1,106 @@
+[
+  {
+    "build": "EOS",
+    "name": "EncryptData.dll",
+    "original_sha256": "BE03D550C14F61E7506B3C58A6550A5C54FE3FFC599F8559EB4AA605994BE08F",
+    "original_mvid": "2daa87c3-1087-4632-89b9-88f00f52dd0a",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 10
+  },
+  {
+    "build": "EOS",
+    "name": "EOSClient.exe",
+    "original_sha256": "6CBE8772252EF16AC7E6D5D43CB85E54A39B5F1CF3A338976B5AB93E87D96EC4",
+    "original_mvid": "e3547259-a6ef-4879-ad2c-cd0552e2957d",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 444
+  },
+  {
+    "build": "EOS",
+    "name": "HashCodeProvider.dll",
+    "original_sha256": "60F5CFA53C8781093F6A95B910734B23A886923C99E0EAD5BAFDD21892ABEA19",
+    "original_mvid": "89fda5fd-383e-4ba2-b11f-cd930307db73",
+    "original_runtime": "v1.1.4322",
+    "original_methods": 2
+  },
+  {
+    "build": "EOS",
+    "name": "IRemote.dll",
+    "original_sha256": "9F9529593FACB03F7C49EB76B1823FB274D35DFFBB250C6372DB091F4D97A82D",
+    "original_mvid": "3079d900-1abe-4ac7-8dc8-9f2c2756af05",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 56
+  },
+  {
+    "build": "EOS",
+    "name": "QuestionLib.dll",
+    "original_sha256": "5E8DD39FB00CB9F266B41A33C24CF1BE802FF801BC30ECDEB1D567FE7401F3C0",
+    "original_mvid": "89b2531e-d8a9-4fed-961e-dd1876d04f3d",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 504
+  },
+  {
+    "build": "PEA-CSD",
+    "name": "EncryptData.dll",
+    "original_sha256": "C0F99648107249600B6282F336822652D20736832D9B7BE22460FF4B40FC4D0B",
+    "original_mvid": "de1dfdc0-c2d9-4651-8b79-fb4033420c84",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 9
+  },
+  {
+    "build": "PEA-CSD",
+    "name": "GradeLib.dll",
+    "original_sha256": "4799884B868EEFEC53EDB6A3785D8E83775E792E09E24F6B37B5C9033CBAF182",
+    "original_mvid": "3703e044-dbe7-4ea3-bdea-244b076b45aa",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 111
+  },
+  {
+    "build": "PEA-CSD",
+    "name": "IRemote.dll",
+    "original_sha256": "18E691A48CF13953496C9A45B6ED160F411ECC1E87F74F0B68D7F30461DB84C9",
+    "original_mvid": "9c6895ee-8843-4c8a-8551-745846368267",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 62
+  },
+  {
+    "build": "PEA-CSD",
+    "name": "PEALogin.exe",
+    "original_sha256": "F91853FE1EF5A3D5A1DD83CC704946CC661A0C44ACF79E12020582D47057AFBF",
+    "original_mvid": "c8c09817-d37b-4df0-b97f-83e15fc01fb3",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 15
+  },
+  {
+    "build": "PEA-PRN",
+    "name": "EncryptData.dll",
+    "original_sha256": "B1202F46AB933E59B255F703454397FF55E50EC448DA421209D44E9520728D58",
+    "original_mvid": "311a53c2-af5d-450b-9c73-83a0db13c9a7",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 8
+  },
+  {
+    "build": "PEA-PRN",
+    "name": "GradeLib.dll",
+    "original_sha256": "8FBE39B95E8FA4F61BB313F3DE6711860DD2F5E403D805E54774695823DB53A3",
+    "original_mvid": "7e94e4ca-cb20-4db4-ae7c-6d2ca04d84ef",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 128
+  },
+  {
+    "build": "PEA-PRN",
+    "name": "IRemote.dll",
+    "original_sha256": "CEF22E60D87E57DB5B3202B7301DBF3710F497695E7C3E1E5BCC619FA6B79846",
+    "original_mvid": "6d085b80-9f90-4948-8da4-27d3baa6a24c",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 62
+  },
+  {
+    "build": "PEA-PRN",
+    "name": "PEALogin.exe",
+    "original_sha256": "72A11EDA0D6BB7C2975981226598D523B3641AE536C38404B9C66FA626B4CAD1",
+    "original_mvid": "c543bcbd-1563-4fc3-a22e-372df47d8a9e",
+    "original_runtime": "v2.0.50727",
+    "original_methods": 15
+  }
+]
