@@ -22,5 +22,7 @@ foreach ($pack in @('EOS','PEA-CSD','PEA-PRN')) {
 if ($LASTEXITCODE -ne 0) {throw 'Login simulation failed'}
 & python (Join-Path $root 'scripts\index_methods.py')
 if ($LASTEXITCODE -ne 0) {throw 'Method catalog failed'}
+& python (Join-Path $root 'scripts\audit_pea_logging.py')
+if ($LASTEXITCODE -ne 0) {throw 'PEA logging reference audit failed'}
 & python (Join-Path $root 'scripts\audit_report.py')
 if ($LASTEXITCODE -ne 0) {throw 'Audit comparison failed'}
