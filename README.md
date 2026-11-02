@@ -200,7 +200,7 @@ npm ci
 npm run docs:gifs
 ```
 
-The renderer uses installed Chrome/Edge or Playwright Chromium. Set `CHROME_PATH` to override discovery; if no browser is available, run `npx playwright-core install chromium`. It captures deterministic steps from the HTML, uses a shared 128-color palette per GIF, and retains long reading pauses without duplicating every video frame. The animations are illustrative guides, not runtime recordings. PNG capture frames, palettes and the render receipt stay under ignored `evidence/readme-animation/`; only the four optimized GIFs are committed.
+The renderer uses installed Chrome/Edge or Playwright Chromium. Set `CHROME_PATH` to override discovery; if no browser is available, run `npx playwright-core install chromium`. It captures deterministic steps from the HTML with 25 fps marker motion, short holds and a shared 128-color palette per GIF. Each step takes about 1.6 seconds; the detailed text and interactive HTML remain available for slower exploration. The animations are illustrative guides, not runtime recordings. PNG capture frames, palettes and the render receipt stay under ignored `evidence/readme-animation/`; only the four optimized GIFs are committed.
 
 Raw REA captures, initial decompiles, method exports, normalized binaries, fixtures, screenshots, build logs and the full method catalog are generated locally and ignored. They remain reproducible without committing duplicate source trees or multi-megabyte generated documentation. A compact audit summary, source digests and assembly identities are retained under `analysis/`.
 

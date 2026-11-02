@@ -14,6 +14,8 @@ const output = path.join(root, 'docs/media');
 const only = process.argv.find(arg => arg.startsWith('--only='))?.slice(7);
 const preview = process.argv.includes('--preview');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+// 25 fps while moving, followed by a short hold: 1.6 seconds per step.
+const motionFrames = 16, frameSeconds = .04, holdSeconds = .96;
 
 // Verify the encoded animation, rather than assuming the requested delays/loop.
 function gifInfo(file) {
@@ -79,7 +81,7 @@ function browserPath() {
       let serial=0;
       for (let step=0;step<item.steps.length;step++) {
         const moving = item.steps[step].moving;
-        const poses = moving && !preview ? [0,.2,.4,.6,.8,1] : [1];
+        const poses = moving && !preview ? Array.from({length:motionFrames+1},(_,i)=>i/motionFrames) : [1];
         for (const progress of poses) {
           await page.evaluate(({id,step,progress}) => window.flowExport.show(id,step,progress),{id:item.id,step,progress});
           const layout = await page.evaluate(() => {
@@ -92,7 +94,7 @@ function browserPath() {
           if (layout.width!==1000 || layout.height!==740 || layout.outside.length) throw Error(`Export overflow: ${item.id}/${step}: ${JSON.stringify(layout)}`);
           const file=`frame-${String(serial++).padStart(3,'0')}.png`;
           await page.screenshot({path:path.join(folder,file),animations:'disabled'});
-          const duration=progress===1?Math.max(3.5,Math.min(6.5,item.steps[step].caption.length/42)):.1;
+          const duration=progress===1?(moving?holdSeconds:motionFrames*frameSeconds+holdSeconds):frameSeconds;
           frames.push({file,duration,step,progress});
         }
         if (preview) break;
@@ -106,7 +108,7 @@ function browserPath() {
       const palette=path.join(folder,'palette.png');
       encode(['-f','concat','-safe','0','-i',concat,'-vf','palettegen=max_colors=128:stats_mode=diff','-frames:v','1','-update','1',palette]);
       const name=item.id==='overview'?'architecture':item.id, destination=path.join(output,name+'.gif');
-      encode(['-f','concat','-safe','0','-i',concat,'-i',palette,'-lavfi','[0:v][1:v]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle','-fps_mode','vfr','-loop','0','-final_delay','10','-gifflags','+offsetting+transdiff',destination]);
+      encode(['-f','concat','-safe','0','-i',concat,'-i',palette,'-lavfi','[0:v][1:v]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle','-fps_mode','vfr','-loop','0','-final_delay','4','-gifflags','+offsetting+transdiff',destination]);
       const bytes=fs.statSync(destination).size;
       if (bytes>2*1024*1024) throw Error(`GIF exceeds the 2 MiB export budget: ${destination}`);
       const encoded=gifInfo(destination);
