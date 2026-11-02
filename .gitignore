@@ -1,0 +1,13 @@
+.tools/
+.npm-cache/
+inputs/
+decompiled/
+evidence/
+src/EOS.Analysis/
+artifacts/
+**/bin/
+**/obj/
+**/__pycache__/
+*.user
+*.suo
+.vs/
