@@ -114,5 +114,6 @@ $('previous').onclick=()=>advance(-1);$('next').onclick=()=>advance(1);$('play')
 document.addEventListener('keydown',e=>{if(e.target.closest('button,a,input,select,textarea,summary'))return;if(e.code==='Space'&&current()&&!reduced.matches){e.preventDefault();$('play').click()}else if(e.key==='ArrowRight'){e.preventDefault();advance(1)}else if(e.key==='ArrowLeft'){e.preventDefault();advance(-1)}else if(e.key==='Home'){e.preventDefault();stop();index=0;render()}});
 function updateTheme(){let dark=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);$('theme').textContent=dark?'Light':'Dark';$('theme').setAttribute('aria-label',`Switch to ${dark?'light':'dark'} theme`)}$('theme').onclick=()=>{const next=$('theme').textContent.toLowerCase();document.documentElement.dataset.theme=next;try{localStorage.setItem('eos-pea-theme',next)}catch(e){}updateTheme()};updateTheme();const hash=location.hash.slice(1);if(D.cases.some(c=>c.id===hash))mode=hash;render(false);
 </script></body></html>'''
-out.write_text(template.replace('PAYLOAD',json.dumps(data,ensure_ascii=True).replace('</',r'<\/')),encoding='utf-8')
+template=template.replace('</script></body></html>', '</script><script>\n'+(ROOT/'scripts/flow_export.js').read_text(encoding='utf-8')+'\n</script></body></html>')
+out.write_text(template.replace('PAYLOAD',json.dumps(data,ensure_ascii=True).replace('</',r'<\/')),encoding='utf-8',newline='\n')
 print(out)

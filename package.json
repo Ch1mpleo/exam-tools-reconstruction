@@ -1,0 +1,12 @@
+{
+  "name": "exam-tools-reconstruction-docs",
+  "private": true,
+  "scripts": {
+    "docs:html": "python scripts/make_overview.py",
+    "docs:gifs": "npm run docs:html && node scripts/render_flow_gifs.cjs"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "5.2.0",
+    "playwright-core": "1.58.2"
+  }
+}
