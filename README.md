@@ -2,12 +2,33 @@
 
 Readable C# reconstructed from the supplied **EOS**, **PEA CSD** and **PEA PRN** Windows exam-client packs. This repository explains their startup, registration, library behavior and handoff to the exam interface. It contains **13 buildable application assemblies, 1,426 indexed method declarations, and bounded checks against the original binaries**.
 
+> **Educational use only.** This project is for learning and authorized software analysis. The maintainer does not support cheating, unauthorized access or interference with examinations. Read the [full disclaimer](#educational-use-disclaimer) before using these materials.
+
 The key finding: **the EXE is a bootstrap and login shell. The actual exam form arrives from the server as a compressed .NET assembly.** Reconstructing the supplied files recovers the local side of that boundary, not the absent server or downloaded exam application.
 
 - [Architecture](#architecture) · [EOS flow](#eos-flow) · [PEA flow](#pea-flow)
 - [Source map](#source-map) · [Library details](#library-details) · [Build](#build)
 - [Reproduce the analysis](#reproduce-the-analysis) · [Validation](#validation)
 - The looping previews below play directly on GitHub. For step controls, themes and feature notes, download [the interactive walkthrough](docs/flow.html) and open it in a browser; GitHub displays HTML as source.
+
+## Educational-use disclaimer
+
+This independent learning project documents a reverse-engineering process: studying .NET assemblies, understanding desktop-client architecture, reconstructing readable source, and comparing selected behaviors with synthetic fixtures. Its purpose is education, technical discussion and presentation. It is not intended for use in a real examination or as a replacement for an official exam client.
+
+Use these materials only with software and environments you are authorized to inspect. Keep experiments in an isolated environment with synthetic data. This repository does not grant permission to access an exam server, another person's account, protected exam content or any system operated by a university or service provider.
+
+The maintainer does **not endorse, authorize, encourage or assist** any use of this project to:
+
+- Cheat, gain an unfair academic advantage, obtain protected questions or answers, or manipulate grades, results, answers or submissions.
+- Bypass authentication, exam restrictions, monitoring, integrity checks or other controls in an actual assessment.
+- Impersonate a student or staff member, obtain credentials, or access another person's data or session without authorization.
+- Disrupt examinations, damage systems, interfere with devices or networks, or distribute modified clients for those purposes.
+
+Anyone using or adapting these materials is responsible for their own actions, obtaining the necessary authorization, and following applicable institutional rules and legal requirements. Publication of this repository is not approval of a third party's conduct, and misuse must not be represented as being supported by or carried out on behalf of the maintainer. Requests or contributions intended to enable the activities above are outside the project's scope.
+
+This is an independent reconstruction, not an official release or support channel. No affiliation with or endorsement by the original developers, an educational institution or an exam provider is claimed. Original ownership and copyright notices remain with their respective holders; analysis and reconstruction do not imply ownership of the original application.
+
+The recovered code includes compatibility changes and documented gaps. The bounded checks below do not establish that it is complete, safe for deployment or equivalent to the original system. Use the explanations and controlled examples for learning; do not rely on these builds for conducting or taking an examination.
 
 ## Scope
 
