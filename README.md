@@ -4,10 +4,10 @@ Readable C# reconstructed from the supplied **EOS**, **PEA CSD** and **PEA PRN**
 
 > **Educational use only.** This project is for learning and authorized software analysis. The maintainer does not support cheating, unauthorized access or interference with examinations. Read the [full disclaimer](#educational-use-disclaimer) before using these materials.
 
-The key finding: **the EXE is a bootstrap and login shell. The actual exam form arrives from the server as a compressed .NET assembly.** Reconstructing the supplied files recovers the local side of that boundary, not the absent server or downloaded exam application.
+The key finding: **the EXE is a bootstrap and login shell. The server returns a compressed, executable exam-client assembly in a field named `GUI`.** That assembly can contain interface and application logic, including potential monitoring; its implementation is outside the supplied files. Reconstructing the local packs does not recover the absent server or downloaded exam application.
 
 - [Architecture](#architecture) · [EOS flow](#eos-flow) · [PEA flow](#pea-flow)
-- [Source map](#source-map) · [Library details](#library-details) · [Build](#build)
+- [PEA logs and data](#pea-logging-and-data-collection) · [Source map](#source-map) · [Library details](#library-details) · [Build](#build)
 - [Reproduce the analysis](#reproduce-the-analysis) · [Validation](#validation)
 - The looping previews below play directly on GitHub. For step controls, themes and feature notes, download [the interactive walkthrough](docs/flow.html) and open it in a browser; GitHub displays HTML as source.
 
@@ -50,9 +50,19 @@ This looping architecture preview uses the same graph and visual style as the in
 
 `IRemote.dll` defines the interfaces and serializable messages. It has no executable entry point and does not implement the exam engine. The proxy address is `tcp://<IP>:<port>/Server`, using **.NET Remoting** rather than HTTP/REST.
 
-The local `*.dat` configuration provides server coordinates before registration. The server then returns session data **and executable GUI bytes**. `Assembly.Load(byte[])` loads the decompressed assembly into the client process; this is a runtime code handoff, not just opening an exam document.
+The local `*.dat` configuration provides server coordinates before registration. The return value of `ConductExam` / `ConductTest` contains session data **and executable client bytes**. This is a response to the client's remote call, rather than a separately established unsolicited push channel. `Assembly.Load(byte[])` loads the decompressed assembly; the shell instantiates its exam form and invokes initialization methods in the client process.
+
+The name `GUI` does not limit the payload to visual controls. A compiled assembly can implement event handlers, timers, local data collection and network communication as well as the interface. The supplied loading path does not create a separate restricted application domain. Monitoring could be implemented by the downloaded assembly or components it uses, but the loading mechanism alone does not prove which monitoring features exist.
 
 The supplied modules do not define `ExamClient.PreExamEntry`, `ExamClient.frmEnglishExamClient` or `PEAClient.FrmPEAClient`. Their names appear at the load/reflection boundary. Exam navigation, material display, solution selection and the actual submit caller therefore cannot be reconstructed from these files. The interface signatures remain readable and are documented below.
+
+### GUI compression and confidentiality
+
+All three shells call `GZipHelper.DeCompress(GUI, OriginSize)` before `Assembly.Load`. EOS's helper belongs to [QuestionLib](src/EOS/QuestionLib/QuestionLib/GZipHelper.cs); PEA's belongs to [CSD GradeLib](src/PEA-CSD/GradeLib/GradeLib/GZipHelper.cs) / [PRN GradeLib](src/PEA-PRN/GradeLib/GradeLib/GZipHelper.cs). Each delegates standard GZIP decompression to .NET's `System.IO.Compression.GZipStream`; the codec is supplied by the Framework, not a custom secret algorithm in the client.
+
+GZIP compresses data without encrypting it. The observed GUI-loading sequence has no additional GUI-decryption call between the returned byte array and assembly loading. Someone who already possesses those GUI bytes can decompress and inspect the assembly, although its code may itself be obfuscated. This exposes delivered client code, not server-only implementations or automatically every exam question/answer.
+
+Network interception is a different question: transport/channel encryption could protect bytes in transit. We found no explicit transport-security setup in the inspected shells/configs and did not observe a live session; we therefore do not claim that deployed traffic is readable plaintext or that all other session fields are unencrypted.
 
 ## EOS flow
 
@@ -73,6 +83,12 @@ The exception path resets cursor state, displays errors and requests exit. Sound
 
 EOS's `IRemoteServer` declares six operations: `ConductExam`, `Submit`, `ResyncLocalCache`, `Ping`, `IsMockExam` and `GetMinRequiredClientVersion`. `Submit(SubmitPaper, ref msg)` returns `SubmitStatus`. A separate `IRemoteMonitorServer.SaveScreenImage` is declared; the supplied shell does not establish a caller or monitoring schedule.
 
+### EOS logs, photo check-in and screen images
+
+These are separate mechanisms. [Program.AppendErrorLog](src/EOS/EOSClient/Program.cs) appends a local timestamp, exception text and separator to `eos_unhandled_errors.log` beneath the application's startup directory. This is an implemented diagnostic writer; it does not establish activity or keystroke logging.
+
+Photo check-in is the reflection call to `PreExamEntry.RunCheckIn` and the subsequent `SetCheckInPhoto` handoff. By contrast, [IRemoteMonitorServer.SaveScreenImage](src/EOS/IRemote/IRemote/IRemoteMonitorServer.cs) is a separate screen-image reporting declaration with image bytes, index, exam code and login. Its capture implementation, caller and frequency are absent. Neither this declaration nor the photo handoff establishes continuous webcam or screen recording.
+
 ## PEA flow
 
 The two login programs share this flow. Read the [CSD login](src/PEA-CSD/PEALogin/PEALogin/AuthenticateForm.cs) and [PRN login](src/PEA-PRN/PEALogin/PEALogin/AuthenticateForm.cs) side by side.
@@ -85,6 +101,22 @@ The two login programs share this flow. Read the [CSD login](src/PEA-CSD/PEALogi
 6. **Hand over data.** It clears `pd.GUI`, sets `pd.ServerInfomation`, calls `SetExamData(pd)` and `SetAuthenForm(this)`, shows the runtime form and hides login. Exceptions display their message. Cancel requests application exit, without a remote cancellation or submit call.
 
 PEA's `IRemoteServer` declares `ConductTest`, `Submit` and `Log`. Submission uses `SubmitSolution`, `SubmitHistory` and `SubmitStatus`. The login EXE itself contains no submit call. Given materials, paper images, history and solution packaging are represented by local contracts/helpers; the downloaded form controls their exam-time use.
+
+### PEA logging and data collection
+
+A follow-up static trace verified the hashes and reviewed **197 CSD + 213 PRN original method records** across PEALogin, IRemote, GradeLib and EncryptData. In this scope there are **zero direct calls to `IRemoteServer.Log` or `Submit`**; the only remote registration call is `ConductTest` in each login handler. The [bounded reference audit](analysis/pea-logging.json) records identities, tokens, matching calls, searched capture API names and limitations. Reproduce it with `python scripts/audit_pea_logging.py` after generating the local analysis evidence, or through the normal audit script.
+
+The following logging/submission contracts match between CSD and PRN:
+
+- **Remote log:** `bool Log(string examCode, string login, string logStr)`. This declares a free-form text message associated with an exam/account. Without the caller/server, its event contents, storage destination, retention and alert timing remain unknown.
+- **Registration actually sent:** username, password, test name, `PaperNo = -1`, and uppercase Windows computer name. `RegisterData.StartTime` exists but is not populated by the supplied login handler. Sending a password field does not establish password logging or plaintext network transmission.
+- **Submission model:** `SessionID`, `Login`, `TestName`, `PaperNo`, `QuestionNo`, `SolutionBuf`, `CompressType`, `Path`, `FileSize`. These define available fields; the missing caller determines actual values, path semantics and packaging choice. [CSD](src/PEA-CSD/IRemote/IRemote/SubmitSolution.cs) / [PRN](src/PEA-PRN/IRemote/IRemote/SubmitSolution.cs).
+- **History model:** `PaperNo`, `QuestionNo`, `Path`, `Time`; its constructor accepts the timestamp and comparison sorts newer records first. It is a data model, not an event recorder. [CSD](src/PEA-CSD/IRemote/IRemote/SubmitHistory.cs) / [PRN](src/PEA-PRN/IRemote/IRemote/SubmitHistory.cs).
+- **Local helpers:** `SolutionZip.CreateZip` recursively totals files in the caller-provided directory, checks the 10 MiB/nonzero limit, saves a ZIP and returns its bytes. The helper has no source-extension filter, so additional files in that directory could be included; the root selection and upload caller are absent. `GivenExtract` writes extracted material files, while its `ref log` only returns an exception message on failure. That variable does not itself cause a local log write or remote log call.
+
+No keyboard, microphone, screenshot, clipboard or window-focus capture implementation was identified in these selected application assemblies. PEA's `LockClient` flag and `Log` declaration do not describe a monitoring implementation. This is a bounded finding about the supplied code, **not a claim that deployed PEA exams perform no monitoring**. The downloaded client can contain additional application logic and could call the logging interface or use another communication path.
+
+**Reported operational context, not binary-verified:** the project author reports a lecturer describing student-activity logs and detection of unusual typing during PEA coding exams. That account is consistent with a downloaded client collecting events for server analysis, but does not verify the exact supplied builds, raw keystroke capture, event schema, detection rules or immediate alerts. No real exam session or server logs were inspected to corroborate it.
 
 ### PEA CSD walkthrough
 
