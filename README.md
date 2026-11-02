@@ -7,7 +7,7 @@ The key finding: **the EXE is a bootstrap and login shell. The actual exam form 
 - [Architecture](#architecture) · [EOS flow](#eos-flow) · [PEA flow](#pea-flow)
 - [Source map](#source-map) · [Library details](#library-details) · [Build](#build)
 - [Reproduce the analysis](#reproduce-the-analysis) · [Validation](#validation)
-- [Interactive walkthrough](docs/flow.html): open this standalone HTML file locally; GitHub displays its source.
+- The looping previews below play directly on GitHub. For step controls, themes and feature notes, download [the interactive walkthrough](docs/flow.html) and open it in a browser; GitHub displays HTML as source.
 
 ## Scope
 
@@ -23,26 +23,9 @@ The originals are IL-only PE32 .NET assemblies with CLR `v2.0.50727` metadata. T
 
 ## Architecture
 
-This compact graph renders directly in GitHub. Solid arrows represent recovered local operations and calls into declared interfaces. Dashed arrows describe the submission boundary; the downloaded caller and server implementation are not present.
+This looping architecture preview uses the same graph and visual style as the interactive walkthrough. It follows configuration, local helpers, registration, GUI loading and the submission boundary. Solid arrows represent recovered local operations and calls into declared interfaces. Dashed arrows describe a contract whose downloaded caller and server implementation are outside the supplied files.
 
-```mermaid
-flowchart TB
-    subgraph Local["Supplied and reconstructed locally"]
-        Config["Encrypted server configuration"]
-        Shell["WinForms startup and login<br/>EOSClient / PEALogin"]
-        Crypto["EncryptData<br/>serialization and encryption helpers"]
-        Helpers["EOS: QuestionLib and NAudio<br/>PEA: GradeLib and Ionic.Zip"]
-        Config -->|"ServerInfo: domain and endpoint"| Shell
-        Crypto --> Shell
-        Helpers --> Shell
-    end
-    Server["Exam server<br/>implementation outside supplied files"]
-    GUI["Downloaded exam GUI<br/>implementation outside supplied files"]
-    Shell -->|"IRemoteServer: ConductExam / ConductTest"| Server
-    Server -->|"EOSData / PEAData with compressed GUI bytes"| Shell
-    Shell -->|"GZip → Assembly.Load → SetExamData"| GUI
-    GUI -. "SubmitPaper / SubmitSolution → SubmitStatus" .-> Server
-```
+[![Animated shared architecture: local configuration and libraries feed the login shell, which registers remotely and loads the returned exam GUI; submission remains a contract boundary.](docs/media/architecture.gif)](docs/flow.html)
 
 `IRemote.dll` defines the interfaces and serializable messages. It has no executable entry point and does not implement the exam engine. The proxy address is `tcp://<IP>:<port>/Server`, using **.NET Remoting** rather than HTTP/REST.
 
@@ -51,6 +34,8 @@ The local `*.dat` configuration provides server coordinates before registration.
 The supplied modules do not define `ExamClient.PreExamEntry`, `ExamClient.frmEnglishExamClient` or `PEAClient.FrmPEAClient`. Their names appear at the load/reflection boundary. Exam navigation, material display, solution selection and the actual submit caller therefore cannot be reconstructed from these files. The interface signatures remain readable and are documented below.
 
 ## EOS flow
+
+[![Looping eight-step EOS walkthrough: rules, configuration, connection, registration, payload, GUI loading, check-in and handoff.](docs/media/eos.gif)](docs/flow.html#eos)
 
 Read [Program.cs](src/EOS/EOSClient/Program.cs), [RulesForm.cs](src/EOS/EOSClient/RulesForm.cs) and [AuthenticateForm.cs](src/EOS/EOSClient/AuthenticateForm.cs).
 
@@ -79,6 +64,14 @@ The two login programs share this flow. Read the [CSD login](src/PEA-CSD/PEALogi
 6. **Hand over data.** It clears `pd.GUI`, sets `pd.ServerInfomation`, calls `SetExamData(pd)` and `SetAuthenForm(this)`, shows the runtime form and hides login. Exceptions display their message. Cancel requests application exit, without a remote cancellation or submit call.
 
 PEA's `IRemoteServer` declares `ConductTest`, `Submit` and `Log`. Submission uses `SubmitSolution`, `SubmitHistory` and `SubmitStatus`. The login EXE itself contains no submit call. Given materials, paper images, history and solution packaging are represented by local contracts/helpers; the downloaded form controls their exam-time use.
+
+### PEA CSD walkthrough
+
+[![Looping PEA CSD walkthrough: startup, configuration, validation, ConductTest, returned GUI loading and session handoff.](docs/media/pea-csd.gif)](docs/flow.html#pea-csd)
+
+### PEA PRN walkthrough
+
+[![Looping PEA PRN walkthrough: the shared login sequence with the PRN-specific PEAData contract and image list.](docs/media/pea-prn.gif)](docs/flow.html#pea-prn)
 
 ### Keep CSD and PRN separate
 
@@ -116,6 +109,7 @@ analysis/                   Compact identities, EOS aliases and validation
 scripts/                    Import, build, reconstruction and audit commands
 tooling/                   Static analysis, CIL simulation and DLL probes
 docs/flow.html             Standalone interactive architecture walkthrough
+docs/media/                Four optimized, looping README previews
 ```
 
 Method counts include constructors, generated accessors, interface declarations and short forwarding wrappers. They do not represent 1,426 separate business features.
@@ -198,6 +192,15 @@ python ./scripts/make_overview.py
 The reconstruction stages are: verify inputs → capture metadata/original IL → normalize EOS names/dispatchers → decompile → decode constants/resources offline → prepare compatibility projects → index methods → annotate behavior → build and compare. `Reconstruct.ps1` rewrites generated files under `src/`; preserve any manual experiments before regenerating.
 
 `tooling/Reconstruction.Tool` parses assemblies and interprets selected login CIL against mocks. `tooling/LibraryProbe` executes only a fixed allowlist of DLL helpers, in separate original/rebuilt processes with synthetic fixtures. It never loads a client EXE. The scripts fail on missing observations, unsupported modeled calls or comparison failures.
+
+To regenerate the four README GIFs from the HTML export view:
+
+```powershell
+npm ci
+npm run docs:gifs
+```
+
+The renderer uses installed Chrome/Edge or Playwright Chromium. Set `CHROME_PATH` to override discovery; if no browser is available, run `npx playwright-core install chromium`. It captures deterministic steps from the HTML, uses a shared 128-color palette per GIF, and retains long reading pauses without duplicating every video frame. The animations are illustrative guides, not runtime recordings. PNG capture frames, palettes and the render receipt stay under ignored `evidence/readme-animation/`; only the four optimized GIFs are committed.
 
 Raw REA captures, initial decompiles, method exports, normalized binaries, fixtures, screenshots, build logs and the full method catalog are generated locally and ignored. They remain reproducible without committing duplicate source trees or multi-megabyte generated documentation. A compact audit summary, source digests and assembly identities are retained under `analysis/`.
 
